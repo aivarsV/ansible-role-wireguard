@@ -167,6 +167,27 @@
   notify:
     - reconfigure wireguard
 
+- name: Generate runit service
+  block:
+    - name: Create service directory
+      ansible.builtin.file:
+        dest: "/etc/sv/wg-quick@{{ wireguard_interface }}"
+        mode: 0755
+        state: directory
+
+    - name: Generate service start script
+      ansible.builtin.template:
+        src: etc/sv/wireguard/run.j2
+        dest: "/etc/sv/wg-quick@{{ wireguard_interface }}/run"
+        mode: 0755
+
+    - name: Generate service start script
+      ansible.builtin.template:
+        src: etc/sv/wireguard/finish.j2
+        dest: "/etc/sv/wg-quick@{{ wireguard_interface }}/finish"
+        mode: 0755
+  when: ansible_distribution == 'Void'
+
 - name: Ensure legacy reload-module-on-update is absent
   ansible.builtin.file:
     dest: "{{ wireguard_remote_directory }}/.reload-module-on-update"

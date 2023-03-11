@@ -1,0 +1,8 @@
+#jinja2: lstrip_blocks:"True",trim_blocks:"True"
+{# Copyright (C) 2023 Aivars Vaivods
+ # SPDX-License-Identifier: GPL-3.0-or-later
+ #}
+#!/bin/sh
+# {{ ansible_managed }}
+
+exec wg-quick down {{ wireguard_remote_directory }}/{{ wireguard_interface }}.conf

@@ -15,7 +15,7 @@
     - wireguard_service_enabled == "yes"
   listen: "reconfigure wireguard"
 
-- name: Syncconf wireguard
+- name: Syncconf wireguard (systemd)
   ansible.builtin.shell: |
     set -o errexit
     set -o pipefail
@@ -28,5 +28,23 @@
   when:
     - not wireguard__restart_interface
     - not ansible_os_family == 'Darwin'
+    - not ansible_distribution == 'Void'
+    - wireguard_service_enabled == "yes"
+  listen: "reconfigure wireguard"
+
+- name: Syncconf wireguard (runit)
+  ansible.builtin.shell: |
+    set -o errexit
+    set -o pipefail
+    set -o nounset
+    sv up wg-quick@{{ wireguard_interface | quote }}
+    wg syncconf {{ wireguard_interface | quote }} <(wg-quick strip /etc/wireguard/{{ wireguard_interface | quote }}.conf)
+    exit 0
+  args:
+    executable: "/bin/bash"
+  when:
+    - not wireguard__restart_interface
+    - not ansible_os_family == 'Darwin'
+    - ansible_distribution == 'Void'
     - wireguard_service_enabled == "yes"
   listen: "reconfigure wireguard"
